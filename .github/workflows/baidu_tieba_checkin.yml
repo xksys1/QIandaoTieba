@@ -1,0 +1,21 @@
+on:
+  schedule:
+    - cron: '0 12 * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: check in
+        env:
+          TIEBA_COOKIE: ${{ secrets.TIEBA_COOKIE }}
+        run: |
+          git clone --depth=1 https://github.com/lucko/darkness.git /tmp/darkness && cd /tmp/darkness &&
+          pip3 install requests &&
+          python3 darkness.py baidu_tieba -c "$TIEBA_COOKIE" -f tieba_checkin.txt &&
+          echo $(date "+%Y-%m-%d %H:%M:%S") >> tieba_checkin.txt && cat tieba_checkin.txt &&
+          git config --global user.email "you@example.com" &&
+          git config --global user.name "Your Name" &&
+          git add . &&
+          git commit -m "$(echo $(date "+Auto check-in on %Y-%m-%d at %H:%M:%S"))" &&
+          git push origin master
