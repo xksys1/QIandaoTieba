@@ -1,0 +1,30 @@
+name: Tieba Daily Sign
+on:
+  schedule:
+    - cron: "0 12 * * *"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Config Python and Install Dependencies
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.x"
+    - name: Install Requirements
+      run: pip install requests
+    - name: Run Script
+      env:
+        cookie: ${{ secrets.COOKIE }}
+      run: |
+        curl https://raw.githubusercontent.com/attakei/opentieba/main/sign_tieba.py | \
+            python /dev/stdin "${{ env.cookie }}"
+    - name: Commit&Push
+      run: |
+        git config --global user.email "your.email@example.com"
+        git config --global user.name "Your Name"
+        git add commit.md
+        git commit -m "[Auto] Daily sign for $(date +'%Y-%m-%d %H:%M:%S')"
+        git push origin HEAD
